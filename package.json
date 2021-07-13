@@ -3,6 +3,15 @@
   "version": "0.1.0",
   "description": "Gatsby source plugin for pulling documents from strapi API",
   "main": "index.js",
+  "files": [
+    "lib/*",
+    "gatsby-node.js",
+    "index.js"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SrJuggernaut/gatsby-source-strapi-schema"
+  },
   "scripts": {
     "build": "tsc",
     "eslint": "eslint src/** --ext .ts",
