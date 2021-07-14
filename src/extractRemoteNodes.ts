@@ -20,38 +20,46 @@ const extractRemoteNodes = async (
         const remote = node[attr]
 
         let fileNodeID
-
-        const mediaDataCacheKey = `strapi-media-${remote.id}`
+        // using field on the cache key for multiple image field
+        const mediaDataCacheKey = `strapi-remote-${remote.id}`
         const cacheMedia = await cache.get(mediaDataCacheKey)
+        // If we have cached media data and it wasn't modified, reuse
+        // previously created file node to not try to redownload
         const lastUpdate = remote.updatedAt || remote.updated_at
-        if (cacheMedia && lastUpdate === cacheMedia.updatedAt) {
-          fileNodeID = cacheMedia.fileNodeID
-          touchNode(getNode(fileNodeID))
-        }
-        if (!fileNodeID) {
-          const sourceUrl = `${remote.url.startsWith('http') ? '' : apiURL}${
-            remote.url
-          }`
-          const fileNode = await createRemoteFileNode({
-            url: sourceUrl,
-            store,
-            cache,
-            createNode,
-            createNodeId,
-            reporter
-          })
-          if (fileNode) {
-            fileNodeID = fileNode.id
 
+        if (cacheMedia && lastUpdate === cacheMedia.updatedAt) {
+          const currentNode = getNode(cacheMedia.fileNodeID)
+          if (currentNode) {
+            fileNodeID = cacheMedia.fileNodeID
+          }
+          touchNode(currentNode)
+        }
+
+        // If we don't have cached data, download the file
+        if (!fileNodeID) {
+          // full media url
+          const sourceUrl = remote.url.startsWith('http')
+            ? remote.url
+            : `${apiURL}${remote.url}`
+          try {
+            const fileNode = await createRemoteFileNode({
+              url: sourceUrl,
+              store,
+              cache,
+              createNode,
+              createNodeId,
+              reporter
+            })
+            fileNodeID = fileNode.id
             await cache.set(mediaDataCacheKey, {
               fileNodeID,
               updatedAt: lastUpdate
             })
+          } catch (error) {
+            reporter.error('Error on remote node', error)
           }
         }
-        if (fileNodeID) {
-          remote.localFile = fileNodeID
-        }
+        remote.localFile = fileNodeID
       }
       await extractRemoteNodes(node[attr], ctx)
     }
