@@ -10,23 +10,10 @@
 Gatsby source plugin for pulling documents from strapi API
 
 ## Installing the plugin
-
-Since the plugin is not yet registered in a package manager, at the moment the way to install it is by cloning this repository in the plugins folder of your project, after that you need to build it 
+You can install
 
 ~~~bash
-npm run build
-~~~
-
-~~~text
-/my-gatsby-site
-├── /plugins
-│   └── /gatsby-source-strapi-schema
-├── /src
-│   └── /pages
-│       └── /index.js
-├── gatsby-config.js
-├── gatsby-node.js
-└── package.json
+npm i gatsby-source-strapi-schema
 ~~~
 
 ## Setting up the plugin
